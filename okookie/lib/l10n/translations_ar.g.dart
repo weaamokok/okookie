@@ -34,4 +34,8 @@ class TranslationsAr extends Translations {
   String get locale => 'ar';
   @override
   String get orderNow => 'اطلب الآن';
+  @override
+  String get loginTitle => 'تسجيل الدخول';
+  @override
+  String get loginSubtitle => 'سجل الدخول  على حسابك';
 }

@@ -6,5 +6,6 @@ import 'package:okookie/resources/resources.dart';
 void main() {
   test('images assets test', () {
     expect(File(Images.cookie).existsSync(), isTrue);
+    expect(File(Images.loginBg).existsSync(), isTrue);
   });
 }

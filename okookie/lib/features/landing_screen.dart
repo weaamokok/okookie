@@ -1,27 +1,33 @@
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:okookie/helper_provider.dart';
 import 'package:okookie/l10n/translations.g.dart';
 import 'package:okookie/resources/resources.dart';
 
-class LandingScreen extends StatelessWidget {
+class LandingScreen extends ConsumerWidget {
   const LandingScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, ref) {
     // Get screen width
-    final screenWidth = MediaQuery.of(context).size.width;
-
+    final screenType =
+        ref.read(HelperProvider.screenTypeProvider.call((context:context,size: null)));
     // Set button size based on screen width
     double buttonWidth;
-    if (screenWidth < 600) {
+    double coverImageHeight;
+    if (screenType == ScreenType.phone) {
       // Small screen (phone)
       buttonWidth = 80;
-    } else if (screenWidth < 1024) {
+      coverImageHeight = 200;
+    } else if (screenType == ScreenType.tablet) {
       // Medium screen (tablet)
       buttonWidth = 110;
+      coverImageHeight = 300;
     } else {
       // Large screen (laptop/desktop)
       buttonWidth = 120;
+      coverImageHeight = 400;
     }
     final l10n = TranslationProvider.of(context).translations;
     return Scaffold(
@@ -70,20 +76,30 @@ class LandingScreen extends StatelessWidget {
         ),
         body: SingleChildScrollView(
           child: Column(
-            mainAxisSize: MainAxisSize.max,
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Image.network(
+                //TODO: fetch from server
                 'https://hips.hearstapps.com/hmg-prod/images/chocolate-chip-cookies-index-641e16cc1424d.jpeg?crop=0.888888888888889xw:1xh;center,top&resize=1200:*',
-                width: double.infinity,
-                height: 300,
+                width: MediaQuery.of(context).size.width,
+                fit: BoxFit.cover,
+
+                height: coverImageHeight,
               ),
               Row(
                 children: [
                   Container(
-                    width: 250, //make them dynamicF
-                    height: 200,
                     child: Column(
-                      children: [Image.asset(Images.cookie)],
+                      children: [
+                        Image.asset(
+                          Images.cookie,
+                          height: 200,
+                          fit: BoxFit.cover,
+                        ),
+                        Text('Cookie')
+                      ],
                     ),
                   )
                 ],

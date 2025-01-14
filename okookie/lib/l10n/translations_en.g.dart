@@ -36,4 +36,6 @@ class Translations implements BaseTranslations<AppLocale, Translations> {
   // Translations
   String get locale => 'en';
   String get orderNow => 'Order Now';
+  String get loginTitle => 'Login';
+  String get loginSubtitle => 'Login to your account';
 }

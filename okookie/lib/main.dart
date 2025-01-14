@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:okookie/features/landing_screen.dart';
+import 'package:okookie/features/login/login_screen.dart';
 import 'package:okookie/l10n/translations.g.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
   LocaleSettings.useDeviceLocale();
-  runApp(TranslationProvider(child: const MyApp()));
+  runApp(ProviderScope(child: TranslationProvider(child: const MyApp())));
 }
 
 class MyApp extends StatelessWidget {
@@ -34,7 +36,7 @@ class MyApp extends StatelessWidget {
 
         // primarySwatch: const MaterialColor(0xffE7CCCC, {}),
       ),
-      home: const LandingScreen(),
+      home: const LoginScreen(),
     );
   }
 }
