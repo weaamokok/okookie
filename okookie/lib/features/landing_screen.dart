@@ -1,3 +1,4 @@
+import 'package:auto_route/annotations.dart';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -5,14 +6,15 @@ import 'package:okookie/helper_provider.dart';
 import 'package:okookie/l10n/translations.g.dart';
 import 'package:okookie/resources/resources.dart';
 
+@RoutePage()
 class LandingScreen extends ConsumerWidget {
   const LandingScreen({super.key});
 
   @override
   Widget build(BuildContext context, ref) {
     // Get screen width
-    final screenType =
-        ref.read(HelperProvider.screenTypeProvider.call((context:context,size: null)));
+    final screenType = ref.read(
+        HelperProvider.screenTypeProvider.call((context: context, size: null)));
     // Set button size based on screen width
     double buttonWidth;
     double coverImageHeight;

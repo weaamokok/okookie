@@ -1,9 +1,17 @@
+import 'package:auto_route/annotations.dart';
+import 'package:auto_route/auto_route.dart';
+import 'package:dartz/dartz.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:okookie/app_router.gr.dart';
+import 'package:okookie/features/control_panel/main_control_screen.dart';
+import 'package:okookie/features/login/login_deps.dart';
 import 'package:okookie/helper_provider.dart';
 import 'package:okookie/l10n/translations.g.dart';
 import 'package:okookie/resources/resources.dart';
 
+@RoutePage()
 class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
 
@@ -78,11 +86,14 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
 }
 
 class LoginForm extends ConsumerWidget {
-  const LoginForm({super.key, this.formPadding});
-  final EdgeInsetsDirectional? formPadding;
+  LoginForm({super.key, this.formPadding});
+  EdgeInsetsDirectional? formPadding;
+  bool? isLoading = false;
   @override
   Widget build(BuildContext context, ref) {
     final l10n = TranslationProvider.of(context).translations;
+    final userNameController = TextEditingController();
+    final passwordController = TextEditingController();
 
     return Form(
       child: Padding(
@@ -104,8 +115,15 @@ class LoginForm extends ConsumerWidget {
             ),
             const SizedBox(height: 20),
             TextFormField(
+              controller: userNameController,
+              validator: (value) {
+                if (value!.isEmpty) {
+                  return l10n.userNameValidation;
+                }
+                return null;
+              },
               decoration: InputDecoration(
-                hintText: 'username',
+                hintText: l10n.userNameFieldHint,
                 hintStyle: TextStyle(
                     color: Colors.black87.withOpacity(.5), fontSize: 13),
                 enabledBorder: OutlineInputBorder(
@@ -121,8 +139,15 @@ class LoginForm extends ConsumerWidget {
               height: 10,
             ),
             TextFormField(
+              controller: passwordController,
+              validator: (value) {
+                if (value!.isEmpty) {
+                  return l10n.passwordValidation;
+                }
+                return null;
+              },
               decoration: InputDecoration(
-                hintText: 'password',
+                hintText: l10n.passwordFieldHint,
                 hintStyle: TextStyle(
                     color: Colors.black87.withOpacity(.5), fontSize: 13),
                 enabledBorder: OutlineInputBorder(
@@ -144,14 +169,41 @@ class LoginForm extends ConsumerWidget {
                 height: 40,
                 width: double.infinity,
                 child: ElevatedButton(
-                  onPressed: () {},
+                  onPressed: () async {
+                    final userResponse = ref.watch(LoginDeps.loginProvider(
+                        LoginRequest(
+                            email: userNameController.text,
+                            password: passwordController.text)));
+                    print('userResponse: $userResponse');
+                    userResponse.when(data: (data) {
+                      print('data: $data');
+                      isLoading = false;
+                      context.router.maybePop();
+                      return context.router.navigate(const MainControlRoute());
+                    }, loading: () {
+                      print('loading');
+                      return isLoading = true;
+                    }, error: (error, stackTrace) {
+                      isLoading = false;
+                      final exception = error as FirebaseException;
+                      return ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(
+                              exception.message ?? l10n.core.somthingWentWrong),
+                        ),
+                      );
+                    });
+                  },
                   style: ButtonStyle(
                       backgroundColor: WidgetStatePropertyAll(
                           Theme.of(context).colorScheme.secondary)),
-                  child: Text(
-                    'Login',
-                    style: TextStyle(color: Colors.black87.withOpacity(.5)),
-                  ),
+                  child: isLoading ?? false
+                      ? const CircularProgressIndicator.adaptive()
+                      : Text(
+                          'Login',
+                          style:
+                              TextStyle(color: Colors.black87.withOpacity(.5)),
+                        ),
                 ))
           ],
         ),

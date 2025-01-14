@@ -1,4 +1,10 @@
 locale: ar
+core: 
+ somthingWentWrong: حدث خطأ ما
 orderNow: اطلب الآن
 loginTitle: تسجيل الدخول
-loginSubtitle: سجل الدخول  على حسابك   
+loginSubtitle: سجل الدخول  على حسابك  
+userNameFieldHint: اسم المستخدم 
+passwordFieldHint: كلمة المرور
+userNameValidation: الرجاء إدخال اسم المستخدم
+passwordValidation: الرجاء إدخال كلمة المرور

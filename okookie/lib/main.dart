@@ -1,13 +1,18 @@
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:okookie/app_router.dart';
 import 'package:okookie/features/landing_screen.dart';
 import 'package:okookie/features/login/login_screen.dart';
+import 'package:okookie/firebase_options.dart';
 import 'package:okookie/l10n/translations.g.dart';
 
-void main() {
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   LocaleSettings.useDeviceLocale();
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  // Ideal time to initialize
   runApp(ProviderScope(child: TranslationProvider(child: const MyApp())));
 }
 
@@ -17,7 +22,10 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    final _appRouter = AppRouter();
+    return MaterialApp.router(
+      routerConfig: _appRouter.config(),
+
       locale: TranslationProvider.of(context).flutterLocale, // use provider
       supportedLocales: AppLocaleUtils.supportedLocales,
       localizationsDelegates: GlobalMaterialLocalizations.delegates,
@@ -36,7 +44,6 @@ class MyApp extends StatelessWidget {
 
         // primarySwatch: const MaterialColor(0xffE7CCCC, {}),
       ),
-      home: const LoginScreen(),
     );
   }
 }

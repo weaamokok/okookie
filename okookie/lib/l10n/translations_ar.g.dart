@@ -33,9 +33,32 @@ class TranslationsAr extends Translations {
   @override
   String get locale => 'ar';
   @override
+  late final _TranslationsCoreAr core = _TranslationsCoreAr._(_root);
+  @override
   String get orderNow => 'اطلب الآن';
   @override
   String get loginTitle => 'تسجيل الدخول';
   @override
   String get loginSubtitle => 'سجل الدخول  على حسابك';
+  @override
+  String get userNameFieldHint => 'اسم المستخدم';
+  @override
+  String get passwordFieldHint => 'كلمة المرور';
+  @override
+  String get userNameValidation => 'الرجاء إدخال اسم المستخدم';
+  @override
+  String get passwordValidation => 'الرجاء إدخال كلمة المرور';
+}
+
+// Path: core
+class _TranslationsCoreAr extends TranslationsCoreEn {
+  _TranslationsCoreAr._(TranslationsAr root)
+      : this._root = root,
+        super.internal(root);
+
+  final TranslationsAr _root; // ignore: unused_field
+
+  // Translations
+  @override
+  String get somthingWentWrong => 'حدث خطأ ما';
 }

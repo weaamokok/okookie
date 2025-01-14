@@ -1,4 +1,10 @@
 locale: en
+core:
+  somthingWentWrong: Something went wrong
 orderNow: Order Now
 loginTitle: Login
 loginSubtitle: Login to your account
+userNameFieldHint: username
+passwordFieldHint: password
+userNameValidation: username is required
+passwordValidation: password is required

@@ -35,7 +35,22 @@ class Translations implements BaseTranslations<AppLocale, Translations> {
 
   // Translations
   String get locale => 'en';
+  late final TranslationsCoreEn core = TranslationsCoreEn.internal(_root);
   String get orderNow => 'Order Now';
   String get loginTitle => 'Login';
   String get loginSubtitle => 'Login to your account';
+  String get userNameFieldHint => 'username';
+  String get passwordFieldHint => 'password';
+  String get userNameValidation => 'username is required';
+  String get passwordValidation => 'password is required';
+}
+
+// Path: core
+class TranslationsCoreEn {
+  TranslationsCoreEn.internal(this._root);
+
+  final Translations _root; // ignore: unused_field
+
+  // Translations
+  String get somthingWentWrong => 'Something went wrong';
 }
