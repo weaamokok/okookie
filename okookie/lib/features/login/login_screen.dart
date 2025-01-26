@@ -1,11 +1,10 @@
-import 'package:auto_route/annotations.dart';
 import 'package:auto_route/auto_route.dart';
-import 'package:dartz/dartz.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:okookie/app_router.gr.dart';
-import 'package:okookie/features/control_panel/main_control_screen.dart';
 import 'package:okookie/features/login/login_deps.dart';
 import 'package:okookie/helper_provider.dart';
 import 'package:okookie/l10n/translations.g.dart';
@@ -55,11 +54,17 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
 
   @override
   Widget build(BuildContext context) {
-    // screenType =
-    //       ref.watch(HelperProvider.screenTypeProvider.call(context));
-
     return Scaffold(
       body: Consumer(builder: (context, ref, widget) {
+        ref.watch(LoginDeps.authProvider);
+        ref.listen(LoginDeps.authProvider, (previous, next) async {
+          final state = await next;
+          print(' listenenit > $state');
+          print(' listenenit > $state');
+          if (state == AuthStatus.authenticated) {
+            context.router.navigate(const MainControlRoute());
+          }
+        });
         screenType = ref.watch(HelperProvider.screenTypeProvider
             .call((context: context, size: _lastSize)));
 
@@ -85,16 +90,49 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
   }
 }
 
-class LoginForm extends ConsumerWidget {
+// ignore: must_be_immutable
+class LoginForm extends HookConsumerWidget {
   LoginForm({super.key, this.formPadding});
   EdgeInsetsDirectional? formPadding;
-  bool? isLoading = false;
   @override
   Widget build(BuildContext context, ref) {
+  final isLoading = useState(false);
+
     final l10n = TranslationProvider.of(context).translations;
     final userNameController = TextEditingController();
     final passwordController = TextEditingController();
+    void process() async {
+      try {
+        final userResponse = ref.watch(LoginDeps.loginProvider(
+          LoginRequest(
+              email: userNameController.text,
+              password: passwordController.text),
+        ));
+        print('userResponse: $userResponse');
+        userResponse.when(data: (data) {
+          // print('data: $data');
+          isLoading.value = false;
+          context.router.maybePop();
+          return context.router.navigate(const MainControlRoute());
+        }, loading: () {
+          print('loading');
 
+          return isLoading.value = true;
+        }, error: (error, stackTrace) {
+          isLoading.value = false;
+          final exception = error as FirebaseException;
+          return ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(exception.message ?? l10n.core.somthingWentWrong),
+            ),
+          );
+        });
+      } catch (e) {
+        print('error: $e');
+      }
+    }
+
+    ;
     return Form(
       child: Padding(
         padding: formPadding ?? const EdgeInsets.all(20),
@@ -140,6 +178,8 @@ class LoginForm extends ConsumerWidget {
             ),
             TextFormField(
               controller: passwordController,
+              obscureText: true,
+              onFieldSubmitted: (value) => process(),
               validator: (value) {
                 if (value!.isEmpty) {
                   return l10n.passwordValidation;
@@ -165,46 +205,24 @@ class LoginForm extends ConsumerWidget {
             const SizedBox(
               height: 20,
             ),
-            SizedBox(
-                height: 40,
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: () async {
-                    final userResponse = ref.watch(LoginDeps.loginProvider(
-                        LoginRequest(
-                            email: userNameController.text,
-                            password: passwordController.text)));
-                    print('userResponse: $userResponse');
-                    userResponse.when(data: (data) {
-                      print('data: $data');
-                      isLoading = false;
-                      context.router.maybePop();
-                      return context.router.navigate(const MainControlRoute());
-                    }, loading: () {
-                      print('loading');
-                      return isLoading = true;
-                    }, error: (error, stackTrace) {
-                      isLoading = false;
-                      final exception = error as FirebaseException;
-                      return ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text(
-                              exception.message ?? l10n.core.somthingWentWrong),
-                        ),
-                      );
-                    });
-                  },
-                  style: ButtonStyle(
-                      backgroundColor: WidgetStatePropertyAll(
-                          Theme.of(context).colorScheme.secondary)),
-                  child: isLoading ?? false
-                      ? const CircularProgressIndicator.adaptive()
-                      : Text(
-                          'Login',
-                          style:
-                              TextStyle(color: Colors.black87.withOpacity(.5)),
-                        ),
-                ))
+            Consumer(builder: (context, ref, widget) {
+              return SizedBox(
+                  height: 40,
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: process,
+                    style: ButtonStyle(
+                        backgroundColor: WidgetStatePropertyAll(
+                            Theme.of(context).colorScheme.secondary)),
+                    child: isLoading.value
+                        ? const CircularProgressIndicator.adaptive()
+                        : Text(
+                            'Login',
+                            style: TextStyle(
+                                color: Colors.black87.withOpacity(.5)),
+                          ),
+                  ));
+            })
           ],
         ),
       ),

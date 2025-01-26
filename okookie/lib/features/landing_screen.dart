@@ -6,6 +6,8 @@ import 'package:okookie/helper_provider.dart';
 import 'package:okookie/l10n/translations.g.dart';
 import 'package:okookie/resources/resources.dart';
 
+import '../o_widgets/o_title.dart';
+
 @RoutePage()
 class LandingScreen extends ConsumerWidget {
   const LandingScreen({super.key});
@@ -34,13 +36,7 @@ class LandingScreen extends ConsumerWidget {
     final l10n = TranslationProvider.of(context).translations;
     return Scaffold(
         appBar: AppBar(
-          title: const AutoSizeText(
-            'Okookie',
-            maxFontSize: 50,
-            minFontSize: 20,
-            style: TextStyle(
-                fontFamily: 'mataryah', color: Colors.black, fontSize: 50),
-          ),
+          title:const OTitle(),
           centerTitle: true,
           actions: [
             Padding(
