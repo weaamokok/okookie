@@ -186,7 +186,7 @@ class LoginForm extends HookConsumerWidget {
                 }
                 return null;
               },
-              decoration: InputDecoration(
+              decoration: InputDecoration(//todo remove this cuz it was added to the theme 
                 hintText: l10n.passwordFieldHint,
                 hintStyle: TextStyle(
                     color: Colors.black87.withOpacity(.5), fontSize: 13),

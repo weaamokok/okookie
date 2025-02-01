@@ -15,9 +15,18 @@ class AppRouter extends RootStackRouter {
   List<AutoRoute> get routes => [
         AutoRoute(page: LandingRoute.page, path: '/home'),
         AutoRoute(page: LoginRoute.page, initial: true, path: '/login'),
-        AutoRoute(page: MainControlRoute.page, path: '/main'),
+        AutoRoute(page: MainControlRoute.page, path: '/main', children: [
+          AutoRoute(
+              path: '',
+              page: HomeRoute.page,
+              type: const RouteType.cupertino()),
+          AutoRoute(
+              path: 'add-item',
+              page: AddItemRoute.page,
+              type: const RouteType.cupertino())
+        ]),
       ];
-  @override
+
   @override
   late final List<AutoRouteGuard> guards = [
     AuthGuard(ref)

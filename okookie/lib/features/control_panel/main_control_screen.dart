@@ -17,114 +17,17 @@ class MainControlScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, ref) {
-
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
         backgroundColor: Colors.white,
         title: const OTitle(),
-        actions: [],
+        actions: const [],
         leading: const SizedBox(),
       ),
       body: SingleChildScrollView(
-        child: Row(
-          children: [
-            Expanded(
-              child: Column(
-                children: [
-                  OSection(
-                      header: SectionHeader(
-                        title: 'manage cookies',
-                        action: OButton(
-                            backgroundColor: const Color(0xff282828),
-                            text: 'add cookie',
-                            action: () {
-                              context.router.navigate(const AddItemRoute());
-                              ref.read(ControlPanelDeps.addCookieProvider.call(
-                                  Cookie(
-                                      id: '11111',
-                                      name: 'red vilvid ',
-                                      description: 'jkjkjkj',
-                                      price: 98,
-                                      stock: 3,
-                                      originalPrice: 100)));
-                            }),
-                      ),
-            
-                        child:Consumer(builder: (context, ref, child) {
-    var cookies = ref.watch(await ControlPanelDeps.cookiesProvider);
-                  return    SizedBox(
-                              height: 240,
-                              child: ListView(
-                                children: cookies.
-                                    ? cookies
-                                        .map(
-                                          (e) => OkookieCard(
-                                            cookie: Cookie(
-                                                id: e.id,
-                                                name: e.name,
-                                                description: e.description,
-                                                ingredients: e.ingredients,
-                                                originalPrice: e.originalPrice,
-                                                price: e.price),
-                                          ),
-                                        )
-                                        .toList()
-                                    : [],
-                              ),
-                            )
-                          : Container(
-                              child: Text('empty');
-                          )
-                      } )),
-                  OSection(
-                      header: const SectionHeader(
-                        title: 'manage orders',
-                      ),
-                      child: SizedBox(
-                        height: MediaQuery.of(context).size.height / 3,
-                        child: ListView(
-                          children: [
-                            OkookieCard(
-                              cookie: Cookie(id: 'jhj'),
-                            )
-                          ],
-                        ),
-                      ))
-                ],
-              ),
-            ),
-            Expanded(
-                child: OSection(
-                    header: const SectionHeader(
-                      title: 'background Image',
-                    ),
-                    child: Container(
-                      margin: const EdgeInsets.only(top: 20),
-                      width: double.infinity,
-                      decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(15),
-                          color: Colors.white),
-                      height: MediaQuery.of(context).size.height * 0.75,
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          const Text(
-                            "upload new banner image for the website",
-                            style: TextStyle(fontSize: 13),
-                          ),
-                          Text(
-                            "1500x850 is the prefered ratio",
-                            style: TextStyle(
-                                fontSize: 13,
-                                color: const Color(0xff282828).withOpacity(.5)),
-                          ),
-                          const SizedBox(height: 10),
-                          OButton(text: 'pick photo', action: () {})
-                        ],
-                      ),
-                    )))
-          ],
+        child: AutoRouter(
+          builder: (context, content) => content,
         ),
       ),
     );
@@ -167,9 +70,11 @@ class OButton extends HookConsumerWidget {
   final ValueNotifier? loadingState;
   final String text;
   final Function() action;
+
   @override
   Widget build(BuildContext context, ref) {
     bool isLoading = loadingState?.value ?? false;
+
     return ElevatedButton(
       onPressed: action,
       style: ButtonStyle(
@@ -179,7 +84,7 @@ class OButton extends HookConsumerWidget {
         shape: const WidgetStatePropertyAll(RoundedRectangleBorder(
             borderRadius: BorderRadius.all(Radius.circular(10)))),
         padding: const WidgetStatePropertyAll(
-            EdgeInsets.symmetric(horizontal: 8, vertical: 0)),
+            EdgeInsets.symmetric(horizontal: 4, vertical: 0)),
       ),
       child: isLoading
           ? SizedBox(
@@ -222,34 +127,118 @@ class OkookieCard extends HookWidget {
         leading: Text(
           cookie.name ?? '',
           overflow: TextOverflow.ellipsis,
-          style: const TextStyle(fontSize: 13),
+          style: const TextStyle(fontSize: 13, color: Colors.black),
+        ),
+        title: Row(
+          children: [
+            if (cookie.price?.value != null)
+              Row(
+                children: [
+                  Text(
+                    '${cookie.price?.value.toString()}',
+                    style: const TextStyle(fontSize: 12),
+                  ),
+                  const SizedBox(
+                    width: 2,
+                  ),
+                  Text(
+                    cookie.price?.currency ?? '',
+                    style: const TextStyle(fontSize: 12, color: Colors.grey),
+                  )
+                ],
+              ),
+            SizedBox(
+              width: 2,
+            ),
+            Text(
+              '|',
+              style: TextStyle(color: Colors.grey),
+            ),
+            SizedBox(
+              width: 2,
+            ),
+            Text(
+              'stock: ${cookie.stock}',
+              style: TextStyle(fontSize: 12, color: Colors.grey),
+            ),
+            SizedBox(
+              width: 2,
+            ),
+          ],
         ),
         trailing: Consumer(builder: (context, ref, child) {
           return Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              OButton(
-                action: () {
-                  loadingState.value = ref
-                      .watch(ControlPanelDeps.removeCookieProvider(cookie.id))
-                      .maybeMap(
-                        orElse: () => false,
-                        loading: (loading) => true,
-                      );
-                  // loadingState.value = removeProvide.maybeMap(
-                  //   orElse: () => false,
-                  //   loading: (loading) => true,
-                  // );
-                },
-                text: 'delete',
-                loadingState: loadingState,
-                backgroundColor:
-                    ref.read(appThemeProvider).colorScheme.errorContainer,
+              SizedBox(
+                width: 30,
+                height: 30,
+                child: IconButton.outlined(
+                  onPressed: () {
+                    if (cookie.id != null) {
+                      loadingState.value = ref
+                          .watch(
+                              ControlPanelDeps.removeCookieProvider(cookie.id!))
+                          .maybeMap(
+                            orElse: () => false,
+                            loading: (loading) => true,
+                          );
+                    }
+                    // loadingState.value = removeProvide.maybeMap(
+                    //   orElse: () => false,
+                    //   loading: (loading) => true,
+                    // );
+                  },
+                  icon: Icon(
+                    Icons.delete,
+                    size: 16,
+                    color: ref.read(appThemeProvider).colorScheme.error,
+                  ),
+                  padding: EdgeInsets.zero,
+                  style: ButtonStyle(
+                      side: WidgetStatePropertyAll(BorderSide(
+                          color: ref
+                              .read(appThemeProvider)
+                              .colorScheme
+                              .error
+                              .withOpacity(.5))),
+                      shape: WidgetStatePropertyAll(RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10)))),
+                ),
               ),
               const SizedBox(
                 width: 5,
               ),
-              OButton(action: () {}, text: 'edit')
+              SizedBox(
+                width: 30,
+                height: 30,
+                child: IconButton.outlined(
+                  onPressed: () {},
+                  icon: Icon(
+                    Icons.edit,
+                    size: 16,
+                    color: ref.read(appThemeProvider).colorScheme.onSurface,
+                  ),
+                  padding: EdgeInsets.zero,
+                  style: ButtonStyle(
+                      side: WidgetStatePropertyAll(BorderSide(
+                          color: ref
+                              .read(appThemeProvider)
+                              .colorScheme
+                              .onSurface
+                              .withOpacity(.5))),
+                      shape: WidgetStatePropertyAll(RoundedRectangleBorder(
+                          side: BorderSide(
+                              color: ref
+                                  .read(appThemeProvider)
+                                  .colorScheme
+                                  .onSurface),
+                          borderRadius: BorderRadius.circular(10)))),
+                ),
+              ),
+              const SizedBox(
+                width: 5,
+              ),
             ],
           );
         }),
@@ -273,8 +262,8 @@ class OSection extends StatelessWidget {
       color: const Color(0xff282828).withOpacity(.03),
       borderOnForeground: true,
       child: Padding(
-        padding: const EdgeInsetsDirectional.symmetric(
-            horizontal: 20.0, vertical: 10),
+        padding:
+            const EdgeInsetsDirectional.symmetric(horizontal: 12, vertical: 10),
         child: Column(
           children: [header, child],
         ),

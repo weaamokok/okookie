@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:dartz/dartz.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:okookie/domain/cookie.dart';
-import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 class ControlPanelDeps {
   static final fetchCookieProvider =
@@ -10,18 +10,24 @@ class ControlPanelDeps {
       return CookiesNotifier()..fetchCookies();
     },
   );
-  static final cookiesProvider=StateProvider<Future<List<Cookie>>>((ref)async {
+  static final cookiesProvider =
+      StateProvider<Future<Either<String, List<Cookie>>>>(
+    (ref) async {
+      List<Cookie> cookies = [];
+      try {
         final ins = FirebaseFirestore.instance;
-    final cookiesREsponse = await ins.collection('items').get();
+        final cookiesREsponse = await ins.collection('items').get();
 
-    List<Cookie> cookies = [];
-
-    for (var element in cookiesREsponse.docs) {
-      cookies.add(Cookie.fromMap(element.data()));
-    }
-
-    return cookies;
-  },);
+        for (var element in cookiesREsponse.docs) {
+          cookies.add(Cookie.fromMap(element.data()));
+        }
+        return right(cookies);
+      } catch (e) {
+        print('error $e');
+        return left(e.toString());
+      }
+    },
+  );
   static final addCookieProvider = FutureProvider.family<void, Cookie>(
       (ref, arg) async => await CookiesNotifier().addCookie(arg));
 
