@@ -27,7 +27,7 @@ class HomeScreen extends ConsumerWidget {
                           backgroundColor: const Color(0xff282828),
                           text: 'add cookie',
                           action: () {
-                            AutoRouter.of(context).push(const AddItemRoute());
+                          context.router.push(const AddItemRoute());
                             // ref.read(ControlPanelDeps.addCookieProvider.call(
                             //     Cookie(
                             //         id: '11111',
@@ -44,7 +44,6 @@ class HomeScreen extends ConsumerWidget {
                           context,
                           snapshot,
                         ) {
-                          print(snapshot.data);
                           if (snapshot.connectionState ==
                               ConnectionState.waiting) {
                             return const CircularProgressIndicator();
@@ -75,7 +74,7 @@ class HomeScreen extends ConsumerWidget {
                                                   name: e.name,
                                                   description: e.description,
                                                   ingredients: e.ingredients,
-                                             
+                                                  stock: e.stock,
                                                   price: e.price),
                                             ),
                                           )

@@ -21,15 +21,34 @@ class ControlPanelDeps {
         for (var element in cookiesREsponse.docs) {
           cookies.add(Cookie.fromMap(element.data()));
         }
+        print(cookies);
         return right(cookies);
       } catch (e) {
-        print('error $e');
+        print('error -> $e');
         return left(e.toString());
       }
     },
   );
-  static final addCookieProvider = FutureProvider.family<void, Cookie>(
-      (ref, arg) async => await CookiesNotifier().addCookie(arg));
+  static final addCookieProvider =
+      FutureProvider.family<bool, Cookie>((ref, arg) async {
+    final ins = FirebaseFirestore.instance;
+    try {
+      await ins.collection('items').add(arg.toMap());
+
+      // Since our state is immutable, we are not allowed to do `state.add(todo)`.
+      // Instead, we should create a new list of todos which contains the previous
+      // items and the new one.
+      // Using Dart's spread operator here is helpful!
+
+      return true;
+      // No need to call "notifyListeners" or anything similar. Calling "state ="
+      // will automatically rebuild the UI when necessary.
+    } catch (error) {
+      print('error -> $error');
+      return false;
+    }
+    // await CookiesNotifier().addCookie(arg)
+  });
 
   static final removeCookieProvider =
       FutureProvider.family<void, String>((ref, arg) async {
@@ -45,7 +64,9 @@ class ControlPanelDeps {
       //     for (final todo in state!)
       //       if (todo.id != todoId) todo,
       // ];
-    } catch (error) {}
+    } catch (error) {
+      return;
+    }
   });
   //=> await CookiesNotifier().removeCookie(arg));
 }

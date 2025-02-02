@@ -116,7 +116,7 @@ class Price {
   }) {
     return Price(
       currency: currency ?? this.currency,
-      value: value ?? this.value,
+      value: value ,
       originalPrice: originalPrice ?? this.originalPrice,
     );
   }

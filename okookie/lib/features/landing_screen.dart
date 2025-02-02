@@ -88,24 +88,22 @@ class LandingScreen extends ConsumerWidget {
               ),
               Row(
                 children: [
-                  Container(
-                    child: Column(
-                      children: [
-                        Image.asset(
-                          Images.cookie,
-                          height: 200,
-                          fit: BoxFit.cover,
-                        ),
-                        Text('Cookie')
-                      ],
-                    ),
+                  Column(
+                    children: [
+                      Image.asset(
+                        Images.cookie,
+                        height: 200,
+                        fit: BoxFit.cover,
+                      ),
+                      const Text('Cookie')
+                    ],
                   )
                 ],
               )
             ],
           ),
         ),
-        drawer: Drawer(
+        drawer: const Drawer(
           child: Column(
             children: [
               Row(

@@ -52,5 +52,5 @@ class TranslationsCoreEn {
   final Translations _root; // ignore: unused_field
 
   // Translations
-  String get somthingWentWrong => 'Something went wrong';
+  String get somethingWentWrong => 'Something went wrong';
 }

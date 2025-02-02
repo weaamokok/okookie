@@ -2,6 +2,7 @@ import 'package:auto_route/auto_route.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
+// ignore: unnecessary_import
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:okookie/app_router.gr.dart';
@@ -45,7 +46,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
   @override
   void didChangeMetrics() {
     setState(() {
-      print('didChangeMetrics');
       _lastSize = View.of(context).physicalSize;
       HelperProvider.screenTypeProvider
           .call((context: context, size: _lastSize));
@@ -59,8 +59,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
         ref.watch(LoginDeps.authProvider);
         ref.listen(LoginDeps.authProvider, (previous, next) async {
           final state = await next;
-          print(' listenenit > $state');
-          print(' listenenit > $state');
           if (state == AuthStatus.authenticated) {
             context.router.navigate(const MainControlRoute());
           }
@@ -96,7 +94,7 @@ class LoginForm extends HookConsumerWidget {
   EdgeInsetsDirectional? formPadding;
   @override
   Widget build(BuildContext context, ref) {
-  final isLoading = useState(false);
+    final isLoading = useState(false);
 
     final l10n = TranslationProvider.of(context).translations;
     final userNameController = TextEditingController();
@@ -108,28 +106,23 @@ class LoginForm extends HookConsumerWidget {
               email: userNameController.text,
               password: passwordController.text),
         ));
-        print('userResponse: $userResponse');
         userResponse.when(data: (data) {
           // print('data: $data');
           isLoading.value = false;
           context.router.maybePop();
           return context.router.navigate(const MainControlRoute());
         }, loading: () {
-          print('loading');
-
           return isLoading.value = true;
         }, error: (error, stackTrace) {
           isLoading.value = false;
           final exception = error as FirebaseException;
           return ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text(exception.message ?? l10n.core.somthingWentWrong),
+              content: Text(exception.message ?? l10n.core.somethingWentWrong),
             ),
           );
         });
-      } catch (e) {
-        print('error: $e');
-      }
+      } catch (e) {}
     }
 
     ;
@@ -186,7 +179,8 @@ class LoginForm extends HookConsumerWidget {
                 }
                 return null;
               },
-              decoration: InputDecoration(//todo remove this cuz it was added to the theme 
+              decoration: InputDecoration(
+                //todo remove this cuz it was added to the theme
                 hintText: l10n.passwordFieldHint,
                 hintStyle: TextStyle(
                     color: Colors.black87.withOpacity(.5), fontSize: 13),

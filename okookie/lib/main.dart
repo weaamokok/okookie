@@ -35,7 +35,7 @@ final appThemeProvider = Provider(
       colorScheme: ColorScheme(
         primary: const Color(0xff446A46),
         secondary: const Color.fromARGB(255, 235, 182, 182),
-      onSecondaryContainer: Color.fromARGB(255, 60, 63, 63),
+        onSecondaryContainer: Color.fromARGB(255, 60, 63, 63),
         surface: const Color(0xffFDFDF6),
         outlineVariant: const Color.fromARGB(255, 186, 186, 186),
         onSurfaceVariant: Colors.black87.withOpacity(.2),
@@ -60,7 +60,7 @@ final appThemeProvider = Provider(
             gapPadding: 10),
         border: OutlineInputBorder(
             borderSide: const BorderSide(color: Color(0xffE7CCCC)),
-            borderRadius: BorderRadius.circular(20),
+            borderRadius: BorderRadius.circular(10),
             gapPadding: 10),
       )
       // primarySwatch: const MaterialColor(0xffE7CCCC, {}),

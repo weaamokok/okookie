@@ -60,5 +60,5 @@ class _TranslationsCoreAr extends TranslationsCoreEn {
 
   // Translations
   @override
-  String get somthingWentWrong => 'حدث خطأ ما';
+  String get somethingWentWrong => 'حدث خطأ ما';
 }

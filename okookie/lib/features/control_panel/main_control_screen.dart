@@ -1,10 +1,9 @@
-import 'package:auto_route/annotations.dart';
+// ignore_for_file: deprecated_member_use
+
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:okookie/app_router.gr.dart';
 import 'package:okookie/domain/cookie.dart';
 import 'package:okookie/features/control_panel/control_panel_deps.dart';
 import 'package:okookie/main.dart';
@@ -23,7 +22,7 @@ class MainControlScreen extends ConsumerWidget {
         backgroundColor: Colors.white,
         title: const OTitle(),
         actions: const [],
-        leading: const SizedBox(),
+      
       ),
       body: SingleChildScrollView(
         child: AutoRouter(
@@ -113,7 +112,7 @@ class OkookieCard extends HookWidget {
     BuildContext context,
   ) {
     final loadingState = useState(false);
-
+print('cookie.stock:->${cookie.stock}');
     return AnimatedContainer(
       duration: kThemeAnimationDuration,
       margin: const EdgeInsets.only(top: 10),
@@ -124,45 +123,64 @@ class OkookieCard extends HookWidget {
           shape: BoxShape.rectangle),
       child: ListTile(
         contentPadding: EdgeInsets.zero,
-        leading: Text(
-          cookie.name ?? '',
-          overflow: TextOverflow.ellipsis,
-          style: const TextStyle(fontSize: 13, color: Colors.black),
-        ),
-        title: Row(
+        title: Wrap(
           children: [
-            if (cookie.price?.value != null)
-              Row(
-                children: [
-                  Text(
-                    '${cookie.price?.value.toString()}',
-                    style: const TextStyle(fontSize: 12),
-                  ),
-                  const SizedBox(
-                    width: 2,
-                  ),
-                  Text(
-                    cookie.price?.currency ?? '',
-                    style: const TextStyle(fontSize: 12, color: Colors.grey),
-                  )
-                ],
-              ),
-            SizedBox(
-              width: 2,
-            ),
             Text(
-              '|',
-              style: TextStyle(color: Colors.grey),
+              cookie.name ?? '',
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(
+                  fontSize: 13,
+                  color: Colors.black,
+                  fontWeight: FontWeight.w400),
             ),
-            SizedBox(
-              width: 2,
-            ),
-            Text(
-              'stock: ${cookie.stock}',
-              style: TextStyle(fontSize: 12, color: Colors.grey),
-            ),
-            SizedBox(
-              width: 2,
+            Row(
+              children: [
+                Row(crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    const Text(
+                      'stock:',
+                      style: TextStyle(fontSize: 12, color: Colors.grey),
+                    ),
+                    const SizedBox(
+                      width: 2,
+                    ),
+                    Text(
+                      (cookie.stock ?? 0.0).toString(),
+                      style: const TextStyle(fontSize: 12),
+                    )
+                  ],
+                ),
+                const SizedBox(
+                  width: 2,
+                ),
+                const Text(
+                  '|',
+                  style: TextStyle(color: Colors.grey),
+                ),
+                const SizedBox(
+                  width: 2,
+                ),
+                if (cookie.price?.value != null)
+                  Row(
+                    children: [
+                      Text(
+                        '${cookie.price?.value.toString()}',
+                        style: const TextStyle(fontSize: 12),
+                      ),
+                      const SizedBox(
+                        width: 2,
+                      ),
+                      Text(
+                        cookie.price?.currency ?? '',
+                        style:
+                            const TextStyle(fontSize: 12, color: Colors.grey),
+                      )
+                    ],
+                  ),
+                const SizedBox(
+                  width: 2,
+                ),
+              ],
             ),
           ],
         ),

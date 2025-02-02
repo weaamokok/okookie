@@ -1,14 +1,18 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:okookie/domain/cookie.dart';
 import 'package:okookie/features/control_panel/control_panel_deps.dart';
 import 'package:okookie/features/control_panel/main_control_screen.dart';
 import 'package:okookie/main.dart';
 import 'package:textfield_tags/textfield_tags.dart';
 
+final GlobalKey<FormState> formKey = GlobalKey(debugLabel: 'addItemKey');
+
 @RoutePage()
-class AddItemScreen extends ConsumerStatefulWidget {
+class AddItemScreen extends StatefulHookConsumerWidget {
   const AddItemScreen({super.key});
   @override
   ConsumerState<ConsumerStatefulWidget> createState() => _AddItemScreen();
@@ -46,7 +50,7 @@ class _AddItemScreen extends ConsumerState<AddItemScreen>
     final itemPrice = TextEditingController();
     final itemStock = TextEditingController();
     final colorScheme = ref.read(appThemeProvider).colorScheme;
-    final GlobalKey<FormState> formKey = GlobalKey(debugLabel: 'addItemKey');
+    final isLoading = useState(false);
     return Container(
       margin: const EdgeInsets.all(14),
       padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 15),
@@ -60,15 +64,15 @@ class _AddItemScreen extends ConsumerState<AddItemScreen>
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const Text(
-              'Add A New Taste of heaven',
-              style: const TextStyle(fontWeight: FontWeight.bold),
+              'Add A Goodness',
+              style: TextStyle(fontWeight: FontWeight.bold),
             ),
             const SizedBox(
               height: 10,
             ), //todo add hint to local
             Row(
               children: [
-                Expanded(
+                Flexible(
                   flex: 2,
                   child: Column(
                     children: [
@@ -76,8 +80,10 @@ class _AddItemScreen extends ConsumerState<AddItemScreen>
                         height: 40,
                         child: TextFormField(
                           controller: itemName,
-                          decoration:
-                              const InputDecoration(hintText: 'item name'),
+                          style: TextStyle(fontSize: 13),
+                          decoration: const InputDecoration(
+                            hintText: 'item name',
+                          ),
                         ),
                       ),
                       const SizedBox(
@@ -86,6 +92,7 @@ class _AddItemScreen extends ConsumerState<AddItemScreen>
                       TextFormField(
                         maxLines: 5,
                         controller: itemDescription,
+                        style: TextStyle(fontSize: 13),
                         decoration: const InputDecoration(
                           hintText: 'description',
                         ),
@@ -95,6 +102,7 @@ class _AddItemScreen extends ConsumerState<AddItemScreen>
                       ), //this field should be generated base on currencies available
                       TextFormField(
                         controller: itemPrice,
+                        style: TextStyle(fontSize: 13),
                         decoration: const InputDecoration(
                           suffix: Text('USD'), //todo make this dynamic
                           suffixStyle: TextStyle(color: Colors.grey),
@@ -106,6 +114,7 @@ class _AddItemScreen extends ConsumerState<AddItemScreen>
                       ),
                       TextFormField(
                         controller: itemStock,
+                        style: TextStyle(fontSize: 13),
                         decoration: const InputDecoration(
                           hintText: 'stock quantity',
                         ),
@@ -128,6 +137,7 @@ class _AddItemScreen extends ConsumerState<AddItemScreen>
                             onTap: () {
                               _stringTagController.getFocusNode?.requestFocus();
                             },
+                            style: TextStyle(fontSize: 13),
                             controller: inputFieldValues.textEditingController,
                             focusNode: inputFieldValues.focusNode,
                             decoration: InputDecoration(
@@ -144,6 +154,8 @@ class _AddItemScreen extends ConsumerState<AddItemScreen>
                                   width: 3.0,
                                 ),
                               ),
+                              contentPadding: const EdgeInsets.symmetric(
+                                  horizontal: 12, vertical: 14),
                               hintText: inputFieldValues.tags.isNotEmpty
                                   ? ''
                                   : "ingredients",
@@ -231,7 +243,7 @@ class _AddItemScreen extends ConsumerState<AddItemScreen>
                 const SizedBox(
                   width: 20,
                 ),
-                Expanded(
+                Flexible(
                   child: Container(
                     height: 150,
                     width: double.infinity,
@@ -275,10 +287,15 @@ class _AddItemScreen extends ConsumerState<AddItemScreen>
                 ),
                 OButton(
                   text: 'save',
-                  action: () {
+                  loadingState: isLoading,
+                  action: () async {
+                    isLoading.value = true;
                     final isValidForm =
                         formKey.currentState?.validate() ?? false;
-                    if (!isValidForm) return;
+                    if (!isValidForm) {
+                      isLoading.value = false;
+                      return;
+                    }
                     final cookie = Cookie(
                         name: itemName.text,
                         price: Price(
@@ -287,8 +304,20 @@ class _AddItemScreen extends ConsumerState<AddItemScreen>
                         ),
                         description: itemDescription.text,
                         ingredients: _stringTagController.getTags,
-                        stock: int.parse(itemStock.text));
-                    ref.read(ControlPanelDeps.addCookieProvider.call(cookie));
+                        stock: int.tryParse(itemStock.text));
+                    print('arg--> $cookie');
+
+                   await ref
+                        .read(ControlPanelDeps.addCookieProvider
+                            .call(cookie)
+                            .future)
+                        .whenComplete(
+                      () {
+                        isLoading.value = false;
+                        context.router.maybePop();
+                      },
+                    );
+                 
                   },
                 )
               ],

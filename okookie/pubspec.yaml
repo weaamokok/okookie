@@ -52,6 +52,7 @@ dependencies:
   hooks_riverpod: ^2.6.1
   cloud_firestore: ^5.6.2
   textfield_tags: ^3.0.1
+  collection: ^1.19.0
   
 
 dev_dependencies:

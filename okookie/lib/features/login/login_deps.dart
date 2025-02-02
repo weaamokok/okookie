@@ -16,10 +16,7 @@ class LoginDeps {
       final localStorage = await ref.read(prefsProvider);
       final localUserId = localStorage.getString('userId');
       final userId = FirebaseAuth.instance.currentUser?.uid;
-      print('in local storage $localUserId');
-      print('in local storage $userId');
       if (localUserId == userId) {
-        print('should authenticate');
         ref.notifyListeners();
         return AuthStatus.authenticated;
       } else {
@@ -54,10 +51,7 @@ Future<AuthStatus> authenticated(Ref ref) async {
   final localStorage = await SharedPreferences.getInstance();
   final localUserId = localStorage.getString('userId');
   final userId = FirebaseAuth.instance.currentUser?.uid;
-  print('in local storage $localUserId');
-  print('in local storage $userId');
   if (localUserId == userId) {
-    print('should authenticate');
     ref.notifyListeners();
     return AuthStatus.authenticated;
   } else {
