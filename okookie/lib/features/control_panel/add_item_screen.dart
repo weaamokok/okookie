@@ -1,11 +1,14 @@
 import 'package:auto_route/auto_route.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:okookie/domain/cookie.dart';
 import 'package:okookie/features/control_panel/control_panel_deps.dart';
 import 'package:okookie/features/control_panel/main_control_screen.dart';
+import 'package:okookie/helpers/image_picker.dart';
 import 'package:okookie/main.dart';
 import 'package:textfield_tags/textfield_tags.dart';
 
@@ -244,29 +247,36 @@ class _AddItemScreen extends ConsumerState<AddItemScreen>
                   width: 20,
                 ),
                 Flexible(
-                  child: Container(
-                    height: 150,
-                    width: double.infinity,
-                    decoration: BoxDecoration(
-                        border: Border.all(
-                          color: colorScheme.onSurfaceVariant,
-                        ),
-                        color: colorScheme.onSurfaceVariant.withOpacity(.1),
-                        borderRadius: BorderRadius.circular(12)),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(
-                          Icons.camera,
-                          color: colorScheme.onSurface,
-                        ),
-                        Text(
-                          'upload item image ',
-                          style: TextStyle(
-                              fontSize: 12, color: colorScheme.onSurface),
-                        )
-                      ],
+                  child: InkWell(
+                    onTap: () async {
+                      if(kIsWeb)
+                      await selectOrTakePhoto(ImageSource.gallery)
+                          .then((image) async {});
+                    },
+                    child: Container(
+                      height: 150,
+                      width: double.infinity,
+                      decoration: BoxDecoration(
+                          border: Border.all(
+                            color: colorScheme.onSurfaceVariant,
+                          ),
+                          color: colorScheme.onSurfaceVariant.withOpacity(.1),
+                          borderRadius: BorderRadius.circular(12)),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Icons.camera,
+                            color: colorScheme.onSurface,
+                          ),
+                          Text(
+                            'upload item image ',
+                            style: TextStyle(
+                                fontSize: 12, color: colorScheme.onSurface),
+                          )
+                        ],
+                      ),
                     ),
                   ),
                 )
@@ -307,7 +317,7 @@ class _AddItemScreen extends ConsumerState<AddItemScreen>
                         stock: int.tryParse(itemStock.text));
                     print('arg--> $cookie');
 
-                   await ref
+                    await ref
                         .read(ControlPanelDeps.addCookieProvider
                             .call(cookie)
                             .future)
@@ -317,7 +327,6 @@ class _AddItemScreen extends ConsumerState<AddItemScreen>
                         context.router.maybePop();
                       },
                     );
-                 
                   },
                 )
               ],

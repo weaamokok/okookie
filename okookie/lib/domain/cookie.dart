@@ -19,7 +19,7 @@ class Cookie {
 
   final int? stock;
   final List<dynamic>? ingredients;
-
+const Cookie.mock({this.id='', this.name='', this.description='', this.price=const Price.mock() , this.stock=9, this.ingredients=const []});
   Cookie copyWith({
     String? id,
     String? name,
@@ -108,7 +108,7 @@ class Price {
   final String currency;
   final double value;
   final String? originalPrice;
-
+const Price.mock({this.value= 0.0,this.currency='',this.originalPrice});
   Price copyWith({
     String? currency,
     double? price,

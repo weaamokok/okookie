@@ -206,6 +206,8 @@ class LoginForm extends HookConsumerWidget {
                   child: ElevatedButton(
                     onPressed: process,
                     style: ButtonStyle(
+                        elevation: const WidgetStatePropertyAll(0
+                        ),
                         backgroundColor: WidgetStatePropertyAll(
                             Theme.of(context).colorScheme.secondary)),
                     child: isLoading.value

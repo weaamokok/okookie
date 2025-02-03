@@ -53,6 +53,9 @@ dependencies:
   cloud_firestore: ^5.6.2
   textfield_tags: ^3.0.1
   collection: ^1.19.0
+  skeletonizer: ^1.4.3
+  image_picker: ^1.1.2
+  image_picker_for_web: ^3.0.6
   
 
 dev_dependencies:

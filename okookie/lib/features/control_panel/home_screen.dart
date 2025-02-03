@@ -6,6 +6,7 @@ import 'package:okookie/domain/cookie.dart';
 import 'package:okookie/features/control_panel/control_panel_deps.dart';
 import 'package:okookie/features/control_panel/main_control_screen.dart';
 import 'package:okookie/main.dart';
+import 'package:skeletonizer/skeletonizer.dart';
 
 @RoutePage()
 class HomeScreen extends ConsumerWidget {
@@ -27,15 +28,7 @@ class HomeScreen extends ConsumerWidget {
                           backgroundColor: const Color(0xff282828),
                           text: 'add cookie',
                           action: () {
-                          context.router.push(const AddItemRoute());
-                            // ref.read(ControlPanelDeps.addCookieProvider.call(
-                            //     Cookie(
-                            //         id: '11111',
-                            //         name: 'red vilvid ',
-                            //         description: 'jkjkjkj',
-                            //         price: 98,
-                            //         stock: 3,
-                            //         originalPrice: 100)));
+                            context.router.push(const AddItemRoute());
                           }),
                     ),
                     child: FutureBuilder(
@@ -46,7 +39,11 @@ class HomeScreen extends ConsumerWidget {
                         ) {
                           if (snapshot.connectionState ==
                               ConnectionState.waiting) {
-                            return const CircularProgressIndicator();
+                            return const Skeletonizer(
+                              child: CookiesListing(
+                                cookies: [Cookie.mock()],
+                              ),
+                            );
                           } else {
                             final cookiesResponse = snapshot.data;
                             if (cookiesResponse == null) {
@@ -63,23 +60,8 @@ class HomeScreen extends ConsumerWidget {
                                         'No cookies yet, add some let the people have fun!',
                                   );
                                 } else {
-                                  return SizedBox(
-                                    height: 240,
-                                    child: ListView(
-                                      children: cookies
-                                          .map(
-                                            (e) => OkookieCard(
-                                              cookie: Cookie(
-                                                  id: e.id,
-                                                  name: e.name,
-                                                  description: e.description,
-                                                  ingredients: e.ingredients,
-                                                  stock: e.stock,
-                                                  price: e.price),
-                                            ),
-                                          )
-                                          .toList(),
-                                    ),
+                                  return CookiesListing(
+                                    cookies: cookies,
                                   );
                                 }
                               },
@@ -135,6 +117,32 @@ class HomeScreen extends ConsumerWidget {
                     ),
                   )))
         ],
+      ),
+    );
+  }
+}
+
+class CookiesListing extends StatelessWidget {
+  const CookiesListing({super.key, required this.cookies});
+  final List<Cookie> cookies;
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      height: 240,
+      child: ListView(
+        children: cookies
+            .map(
+              (e) => OkookieCard(
+                cookie: Cookie(
+                    id: e.id,
+                    name: e.name,
+                    description: e.description,
+                    ingredients: e.ingredients,
+                    stock: e.stock,
+                    price: e.price),
+              ),
+            )
+            .toList(),
       ),
     );
   }
