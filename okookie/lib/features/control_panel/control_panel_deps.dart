@@ -17,22 +17,23 @@ class ControlPanelDeps {
         }
         return right(cookies);
       } catch (e) {
+        print('ere $e');
         return left(e.toString());
       }
     },
   );
   static final addCookieProvider =
-      FutureProvider.family<bool, Cookie>((ref, arg) async {
+      FutureProvider.family<Either<String, void>, Cookie>((ref, arg) async {
     final ins = FirebaseFirestore.instance;
     try {
       final item = await ins.collection('items').add(arg.toMap());
       await ins.collection('items').doc(item.id).update({'id': item.id});
 
       ref.refresh(cookiesProvider);
-      return true;
+      return right(null);
     } catch (error) {
       print('error -> $error');
-      return false;
+      return left(error.toString());
     }
   });
 

@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -25,7 +27,10 @@ class _AddItemScreen extends ConsumerState<AddItemScreen>
     with WidgetsBindingObserver {
   late double _distanceToField;
   late StringTagController _stringTagController;
-
+  final itemName = TextEditingController();
+  final itemDescription = TextEditingController();
+  final itemPrice = TextEditingController();
+  final itemStock = TextEditingController();
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
@@ -48,12 +53,23 @@ class _AddItemScreen extends ConsumerState<AddItemScreen>
   Widget build(
     BuildContext context,
   ) {
-    final itemName = TextEditingController();
-    final itemDescription = TextEditingController();
-    final itemPrice = TextEditingController();
-    final itemStock = TextEditingController();
     final colorScheme = ref.read(appThemeProvider).colorScheme;
     final isLoading = useState(false);
+
+    final uploadedImage = useState<XFile?>(null);
+    final image = uploadedImage.value != null && kIsWeb
+        ? Image.network(
+            uploadedImage.value?.path ?? '',
+            height: 150,
+            fit: BoxFit.cover,
+          )
+        : uploadedImage.value != null && !kIsWeb
+            ? Image.file(
+                File(uploadedImage.value?.path ?? ''),
+                fit: BoxFit.cover,
+                height: 150,
+              )
+            : null;
     return Container(
       margin: const EdgeInsets.all(14),
       padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 15),
@@ -152,6 +168,8 @@ class _AddItemScreen extends ConsumerState<AddItemScreen>
                                 ),
                               ),
                               focusedBorder: const OutlineInputBorder(
+                                borderRadius:
+                                    BorderRadius.all(Radius.circular(15)),
                                 borderSide: BorderSide(
                                   color: Color.fromARGB(255, 74, 137, 92),
                                   width: 3.0,
@@ -205,7 +223,7 @@ class _AddItemScreen extends ConsumerState<AddItemScreen>
                                                   children: [
                                                     InkWell(
                                                       child: Text(
-                                                        '#$tag',
+                                                        '$tag',
                                                         style: const TextStyle(
                                                             color:
                                                                 Colors.white),
@@ -249,34 +267,44 @@ class _AddItemScreen extends ConsumerState<AddItemScreen>
                 Flexible(
                   child: InkWell(
                     onTap: () async {
-                      if(kIsWeb)
                       await selectOrTakePhoto(ImageSource.gallery)
-                          .then((image) async {});
+                          .then((image) async {
+                        uploadedImage.value = image;
+                      });
                     },
-                    child: Container(
-                      height: 150,
-                      width: double.infinity,
-                      decoration: BoxDecoration(
-                          border: Border.all(
-                            color: colorScheme.onSurfaceVariant,
+                    child: Stack(
+                      children: [
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(14),
+                          child: image,
+                        ),
+                        Container(
+                          height: 150,
+                          width: double.infinity,
+                          decoration: BoxDecoration(
+                              border: Border.all(
+                                color: colorScheme.onSurfaceVariant,
+                              ),
+                              color:
+                                  colorScheme.onSurfaceVariant.withOpacity(.1),
+                              borderRadius: BorderRadius.circular(12)),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                Icons.camera,
+                                color: colorScheme.onSurface,
+                              ),
+                              Text(
+                                'upload item image ',
+                                style: TextStyle(
+                                    fontSize: 12, color: colorScheme.onSurface),
+                              )
+                            ],
                           ),
-                          color: colorScheme.onSurfaceVariant.withOpacity(.1),
-                          borderRadius: BorderRadius.circular(12)),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(
-                            Icons.camera,
-                            color: colorScheme.onSurface,
-                          ),
-                          Text(
-                            'upload item image ',
-                            style: TextStyle(
-                                fontSize: 12, color: colorScheme.onSurface),
-                          )
-                        ],
-                      ),
+                        ),
+                      ],
                     ),
                   ),
                 )
@@ -298,6 +326,7 @@ class _AddItemScreen extends ConsumerState<AddItemScreen>
                 OButton(
                   text: 'save',
                   loadingState: isLoading,
+                  backgroundColor: colorScheme.primary,
                   action: () async {
                     isLoading.value = true;
                     final isValidForm =
@@ -315,16 +344,22 @@ class _AddItemScreen extends ConsumerState<AddItemScreen>
                         description: itemDescription.text,
                         ingredients: _stringTagController.getTags,
                         stock: int.tryParse(itemStock.text));
-                    print('arg--> $cookie');
 
-                    await ref
-                        .read(ControlPanelDeps.addCookieProvider
-                            .call(cookie)
-                            .future)
-                        .whenComplete(
-                      () {
+                    final response = await ref.read(
+                        ControlPanelDeps.addCookieProvider.call(cookie).future);
+                    response.fold(
+                      (l) {
+                        return ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(
+                              l,
+                            ),
+                          ),
+                        );
+                      },
+                      (r) {
                         isLoading.value = false;
-                        context.router.maybePop();
+                        context.back();
                       },
                     );
                   },
