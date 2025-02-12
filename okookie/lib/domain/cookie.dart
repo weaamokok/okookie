@@ -11,6 +11,7 @@ class Cookie {
     this.price,
     this.stock,
     this.ingredients,
+    this.images,
   });
   final String? id;
   final String? name;
@@ -19,7 +20,17 @@ class Cookie {
 
   final int? stock;
   final List<dynamic>? ingredients;
-const Cookie.mock({this.id='', this.name='', this.description='', this.price=const Price.mock() , this.stock=9, this.ingredients=const []});
+  final List<dynamic>? images;
+  const Cookie.mock(
+      {this.id = '',
+      this.name = '',
+      this.description = '',
+      this.price = const Price.mock(),
+      this.stock = 9,
+      this.ingredients = const [],
+      this.images = const []});
+ 
+
   Cookie copyWith({
     String? id,
     String? name,
@@ -27,6 +38,7 @@ const Cookie.mock({this.id='', this.name='', this.description='', this.price=con
     Price? price,
     int? stock,
     List<dynamic>? ingredients,
+    List<dynamic>? images,
   }) {
     return Cookie(
       id: id ?? this.id,
@@ -35,6 +47,7 @@ const Cookie.mock({this.id='', this.name='', this.description='', this.price=con
       price: price ?? this.price,
       stock: stock ?? this.stock,
       ingredients: ingredients ?? this.ingredients,
+      images: images ?? this.images,
     );
   }
 
@@ -46,6 +59,7 @@ const Cookie.mock({this.id='', this.name='', this.description='', this.price=con
       'price': price?.toMap(),
       'stock': stock,
       'ingredients': ingredients,
+      'images': images,
     };
   }
 
@@ -53,49 +67,47 @@ const Cookie.mock({this.id='', this.name='', this.description='', this.price=con
     return Cookie(
       id: map['id'] != null ? map['id'] as String : null,
       name: map['name'] != null ? map['name'] as String : null,
-      description:
-          map['description'] != null ? map['description'] as String : null,
-      price: map['price'] != null
-          ? Price.fromMap(map['price'] as Map<String, dynamic>)
-          : null,
+      description: map['description'] != null ? map['description'] as String : null,
+      price: map['price'] != null ? Price.fromMap(map['price'] as Map<String,dynamic>) : null,
       stock: map['stock'] != null ? map['stock'] as int : null,
-      ingredients: map['ingredients'] != null
-          ? List<dynamic>.from((map['ingredients'] as List<dynamic>))
-          : null,
+      ingredients: map['ingredients'] != null ? List<dynamic>.from((map['ingredients'] as List<dynamic>) ): null,
+      images: map['images'] != null ? List<dynamic>.from((map['images'] as List<dynamic>)) : null,
     );
   }
 
   String toJson() => json.encode(toMap());
 
-  factory Cookie.fromJson(String source) =>
-      Cookie.fromMap(json.decode(source) as Map<String, dynamic>);
+  factory Cookie.fromJson(String source) => Cookie.fromMap(json.decode(source) as Map<String, dynamic>);
 
   @override
   String toString() {
-    return 'Cookie(id: $id, name: $name, description: $description, price: $price, stock: $stock, ingredients: $ingredients)';
+    return 'Cookie(id: $id, name: $name, description: $description, price: $price, stock: $stock, ingredients: $ingredients, images: $images)';
   }
 
   @override
   bool operator ==(covariant Cookie other) {
     if (identical(this, other)) return true;
     final listEquals = const DeepCollectionEquality().equals;
-
-    return other.id == id &&
-        other.name == name &&
-        other.description == description &&
-        other.price == price &&
-        other.stock == stock &&
-        listEquals(other.ingredients, ingredients);
+  
+    return 
+      other.id == id &&
+      other.name == name &&
+      other.description == description &&
+      other.price == price &&
+      other.stock == stock &&
+      listEquals(other.ingredients, ingredients) &&
+      listEquals(other.images, images);
   }
 
   @override
   int get hashCode {
     return id.hashCode ^
-        name.hashCode ^
-        description.hashCode ^
-        price.hashCode ^
-        stock.hashCode ^
-        ingredients.hashCode;
+      name.hashCode ^
+      description.hashCode ^
+      price.hashCode ^
+      stock.hashCode ^
+      ingredients.hashCode ^
+      images.hashCode;
   }
 }
 
@@ -108,7 +120,7 @@ class Price {
   final String currency;
   final double value;
   final String? originalPrice;
-const Price.mock({this.value= 0.0,this.currency='',this.originalPrice});
+  const Price.mock({this.value = 0.0, this.currency = '', this.originalPrice});
   Price copyWith({
     String? currency,
     double? price,
@@ -116,7 +128,7 @@ const Price.mock({this.value= 0.0,this.currency='',this.originalPrice});
   }) {
     return Price(
       currency: currency ?? this.currency,
-      value: value ,
+      value: value,
       originalPrice: originalPrice ?? this.originalPrice,
     );
   }

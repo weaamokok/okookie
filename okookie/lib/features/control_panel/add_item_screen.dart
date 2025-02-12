@@ -56,16 +56,18 @@ class _AddItemScreen extends ConsumerState<AddItemScreen>
     final colorScheme = ref.read(appThemeProvider).colorScheme;
     final isLoading = useState(false);
 
-    final uploadedImage = useState<XFile?>(null);
-    final image = uploadedImage.value != null && kIsWeb
+    final uploadedImage = useState<List<XFile>>([]);
+    List<String> imgs = [];
+
+    final image = uploadedImage.value.isNotEmpty && kIsWeb
         ? Image.network(
-            uploadedImage.value?.path ?? '',
+            uploadedImage.value.first.path ?? '',
             height: 150,
             fit: BoxFit.cover,
           )
-        : uploadedImage.value != null && !kIsWeb
+        : uploadedImage.value.isNotEmpty && !kIsWeb
             ? Image.file(
-                File(uploadedImage.value?.path ?? ''),
+                File(uploadedImage.value.first.path ?? ''),
                 fit: BoxFit.cover,
                 height: 150,
               )
@@ -120,7 +122,7 @@ class _AddItemScreen extends ConsumerState<AddItemScreen>
                         height: 10,
                       ), //this field should be generated base on currencies available
                       TextFormField(
-                        controller: itemPrice,
+                        controller: itemPrice,keyboardType: TextInputType.number,
                         style: TextStyle(fontSize: 13),
                         decoration: const InputDecoration(
                           suffix: Text('USD'), //todo make this dynamic
@@ -132,7 +134,7 @@ class _AddItemScreen extends ConsumerState<AddItemScreen>
                         height: 10,
                       ),
                       TextFormField(
-                        controller: itemStock,
+                        controller: itemStock,keyboardType: TextInputType.number,
                         style: TextStyle(fontSize: 13),
                         decoration: const InputDecoration(
                           hintText: 'stock quantity',
@@ -269,7 +271,19 @@ class _AddItemScreen extends ConsumerState<AddItemScreen>
                     onTap: () async {
                       await selectOrTakePhoto(ImageSource.gallery)
                           .then((image) async {
-                        uploadedImage.value = image;
+                        if (image != null) {
+                          List<XFile> imageFiles = [];
+                          for (var element in image) {
+                            imageFiles.add(element.xFile);
+                          }
+
+                          uploadedImage.value = imageFiles;
+                          for(final element in uploadedImage.value ){
+                            print(await element.readAsString());
+                            final i=await element.readAsBytes();
+                          }
+
+                        }
                       });
                     },
                     child: Stack(
@@ -335,12 +349,15 @@ class _AddItemScreen extends ConsumerState<AddItemScreen>
                       isLoading.value = false;
                       return;
                     }
+             
                     final cookie = Cookie(
                         name: itemName.text,
+                        //   images: image,
                         price: Price(
                           currency: "USD",
                           value: double.tryParse(itemPrice.text) ?? 0.0,
                         ),
+                        images: imgs,
                         description: itemDescription.text,
                         ingredients: _stringTagController.getTags,
                         stock: int.tryParse(itemStock.text));

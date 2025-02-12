@@ -51,6 +51,10 @@ class ControlPanelDeps {
     }
   });
   //=> await CookiesNotifier().removeCookie(arg));
+
+  final uploadImage = Provider(
+    (ref) async {},
+  );
 }
 
 class CookiesNotifier extends StateNotifier<List<Cookie>?> {

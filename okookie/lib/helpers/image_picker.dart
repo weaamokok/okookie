@@ -1,10 +1,14 @@
-
+import 'package:file_picker/file_picker.dart';
 import 'package:image_picker/image_picker.dart';
 
-Future<XFile?> selectOrTakePhoto(ImageSource imageSource) async {
-  final img = await ImagePicker.platform
-      .getImageFromSource(source: ImageSource.gallery);
-
-  if (img == null) return null;
-  return XFile(img.path);
+Future<List<PlatformFile>?> selectOrTakePhoto(ImageSource imageSource) async {
+  FilePickerResult? result = await FilePicker.platform.pickFiles(
+    allowMultiple: true,
+    type: FileType.image,
+    
+  );
+  if (result == null) {
+    return null;
+  }
+  return result.files;
 }
