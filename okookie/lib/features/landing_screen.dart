@@ -93,43 +93,121 @@ class LandingScreen extends ConsumerWidget {
 
                 height: coverImageHeight,
               ),
-              FutureBuilder(
-                  future: ref.watch(HomeDeps.featuredCookies),
-                  builder: (
-                    context,
-                    snapshot,
-                  ) {
-                    if (snapshot.connectionState == ConnectionState.waiting) {
-                      return const Skeletonizer(
-                        child: HorizontalListing(
-                          cookies: [Cookie.mock()],
-                        ),
-                      );
-                    } else {
-                      final cookiesResponse = snapshot.data;
-                      if (cookiesResponse == null) {
-                        return const TextContainer(
-                          message: 'something went wrong',
+              Container(
+                child: FutureBuilder(
+                    future: ref.watch(HomeDeps.featuredCookies),
+                    builder: (
+                      context,
+                      snapshot,
+                    ) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return const Skeletonizer(
+                          child: HorizontalListing(
+                            cookies: [Cookie.mock()],
+                          ),
+                        );
+                      } else {
+                        final cookiesResponse = snapshot.data;
+                        if (cookiesResponse == null) {
+                          return const TextContainer(
+                            message: 'something went wrong',
+                          );
+                        }
+                        return cookiesResponse.fold(
+                          (l) => TextContainer(message: l),
+                          (cookies) {
+                            if (cookies.isEmpty) {
+                              return const Text('no data');
+                            } else {
+                              print('has data');
+                              return SizedBox(
+                                height: 300,
+                                width: double.infinity,
+                                child: ListView.builder(
+                                  physics: const AlwaysScrollableScrollPhysics(),
+                                  scrollDirection: Axis.horizontal,
+                                  itemCount: cookies.length,
+                                  itemBuilder: (context, index) {
+                                    final imags = cookies[index].images ?? [];
+                                    return Container(
+                                      margin: const EdgeInsets.all(5),
+                                      width: 150,
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          if (imags.isNotEmpty)
+                                            Expanded(
+                                              flex: 2,
+                                              child: Image.memory(
+                                                base64Decode(
+                                                  cookies[index]
+                                                          .images
+                                                          ?.first ??
+                                                      '',
+                                                ),
+                                                fit: BoxFit.cover,
+                                                errorBuilder: (context, error,
+                                                        stackTrace) =>
+                                                    const Text('error'),
+                                              ),
+                                            ),
+                                          if (imags.isEmpty)
+                                            Expanded(
+                                              flex: 2,
+                                                child: Image.asset(
+                                              Images.cookie,
+                                              fit: BoxFit.cover,
+                                            )),
+                                          Expanded(
+                                            child: Container(
+                                              padding: const EdgeInsets.all(15),
+                                              child: Column(
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
+                                                children: [
+                                                  Text(cookies[index].name ??
+                                                      'no name'),
+                                                  Row(
+                                                    mainAxisAlignment:
+                                                        MainAxisAlignment.start,
+                                                    crossAxisAlignment:
+                                                        CrossAxisAlignment.center,
+                                                    children: [
+                                                      Text(cookies[index]
+                                                              .price
+                                                              ?.value
+                                                              .toString() ??
+                                                          'no name'),
+                                                      Text(
+                                                        cookies[index]
+                                                                .price
+                                                                ?.currency ??
+                                                            'no name',
+                                                        style: const TextStyle(
+                                                            fontSize: 12),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                          )
+                                        ],
+                                      ),
+                                    );
+                                  },
+                                ),
+                              );
+                              // return HorizontalListing(
+                              //   cookies: cookies,
+                              // );
+                            }
+                          },
                         );
                       }
-                      return cookiesResponse.fold(
-                        (l) => TextContainer(message: l),
-                        (cookies) {
-                          if (cookies.isEmpty) {
-                            return const TextContainer(
-                              message:
-                                  'No cookies yet, add some let the people have fun!',
-                            );
-                          } else {
-                            print('has data');
-                            return HorizontalListing(
-                              cookies: cookies,
-                            );
-                          }
-                        },
-                      );
-                    }
-                  })
+                    }),
+              )
             ],
           ),
         ),
@@ -150,9 +228,11 @@ class HorizontalListing extends StatelessWidget {
   final List<Cookie> cookies;
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
+    return Container(
+      color: Colors.red,
+
       height: 340,
-      width: double.infinity,
+      //  width: double.infinity,
       child: ListView.builder(
         itemCount: cookies.length,
         scrollDirection: Axis.horizontal,
@@ -165,14 +245,15 @@ class HorizontalListing extends StatelessWidget {
             width: 200,
             child: Column(
               children: [
-                if (images.isNotEmpty)
-                  Image.memory(
-                    base64Decode(
-                      cookies[index].images?.first ?? '',
-                    ),
-                    errorBuilder: (context, error, stackTrace) => Text('error'),
-                  ),
-                Text('cookies[index].name ?? ' ''),
+                Image.asset(Images.cookie),
+                // if (images.isNotEmpty)
+                //   Image.memory(
+                //     base64Decode(
+                //       cookies[index].images?.first ?? '',
+                //     ),
+                //     errorBuilder: (context, error, stackTrace) => Text('error'),
+                //   ),
+                const Text('cookies[index].name ?? ' ''),
                 // Text(cookies[index].name ?? ''),
                 // Text(cookies[index].price?.value.toString() ?? '')
               ],

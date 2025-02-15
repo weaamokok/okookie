@@ -30,7 +30,7 @@ class HomeDeps {
         final ins = FirebaseFirestore.instance;
         final cookiesREsponse = await ins
             .collection('items')
-          
+          .where('isFeatured',isEqualTo: true)
             .get();
 
         for (var element in cookiesREsponse.docs) {
