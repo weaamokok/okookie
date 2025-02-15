@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:convert';
 
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/foundation.dart';
@@ -55,7 +56,7 @@ class _AddItemScreen extends ConsumerState<AddItemScreen>
   ) {
     final colorScheme = ref.read(appThemeProvider).colorScheme;
     final isLoading = useState(false);
-
+    final isFeatured = useState(false);
     final uploadedImage = useState<List<XFile>>([]);
     List<String> imgs = [];
 
@@ -122,7 +123,8 @@ class _AddItemScreen extends ConsumerState<AddItemScreen>
                         height: 10,
                       ), //this field should be generated base on currencies available
                       TextFormField(
-                        controller: itemPrice,keyboardType: TextInputType.number,
+                        controller: itemPrice,
+                        keyboardType: TextInputType.number,
                         style: TextStyle(fontSize: 13),
                         decoration: const InputDecoration(
                           suffix: Text('USD'), //todo make this dynamic
@@ -134,7 +136,8 @@ class _AddItemScreen extends ConsumerState<AddItemScreen>
                         height: 10,
                       ),
                       TextFormField(
-                        controller: itemStock,keyboardType: TextInputType.number,
+                        controller: itemStock,
+                        keyboardType: TextInputType.number,
                         style: TextStyle(fontSize: 13),
                         decoration: const InputDecoration(
                           hintText: 'stock quantity',
@@ -278,11 +281,6 @@ class _AddItemScreen extends ConsumerState<AddItemScreen>
                           }
 
                           uploadedImage.value = imageFiles;
-                          for(final element in uploadedImage.value ){
-                            print(await element.readAsString());
-                            final i=await element.readAsBytes();
-                          }
-
                         }
                       });
                     },
@@ -349,19 +347,26 @@ class _AddItemScreen extends ConsumerState<AddItemScreen>
                       isLoading.value = false;
                       return;
                     }
-             
+                    for (final element in uploadedImage.value) {
+                      List<int> imageBytes = await element.readAsBytes();
+                      print(imageBytes);
+                      String base64Image = base64Encode(imageBytes);
+                      imgs.add(base64Image);
+                    }
+                    print(imgs);
+
                     final cookie = Cookie(
                         name: itemName.text,
-                        //   images: image,
+                        images: imgs,
                         price: Price(
                           currency: "USD",
                           value: double.tryParse(itemPrice.text) ?? 0.0,
                         ),
-                        images: imgs,
                         description: itemDescription.text,
                         ingredients: _stringTagController.getTags,
-                        stock: int.tryParse(itemStock.text));
-
+                        stock: int.tryParse(itemStock.text),
+                        isFeatured: isFeatured.value);
+                    print('to upload->$cookie ');
                     final response = await ref.read(
                         ControlPanelDeps.addCookieProvider.call(cookie).future);
                     response.fold(

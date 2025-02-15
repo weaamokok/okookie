@@ -9,18 +9,21 @@ class Cookie {
     this.name,
     this.description,
     this.price,
+    this.isFeatured,
     this.stock,
     this.ingredients,
     this.images,
   });
+      
   final String? id;
   final String? name;
   final String? description;
   final Price? price;
-
+  final bool? isFeatured;
   final int? stock;
   final List<dynamic>? ingredients;
   final List<dynamic>? images;
+
   const Cookie.mock(
       {this.id = '',
       this.name = '',
@@ -28,14 +31,16 @@ class Cookie {
       this.price = const Price.mock(),
       this.stock = 9,
       this.ingredients = const [],
+      this.isFeatured = false,
       this.images = const []});
- 
+
 
   Cookie copyWith({
     String? id,
     String? name,
     String? description,
     Price? price,
+    bool? isFeatured,
     int? stock,
     List<dynamic>? ingredients,
     List<dynamic>? images,
@@ -45,6 +50,7 @@ class Cookie {
       name: name ?? this.name,
       description: description ?? this.description,
       price: price ?? this.price,
+      isFeatured: isFeatured ?? this.isFeatured,
       stock: stock ?? this.stock,
       ingredients: ingredients ?? this.ingredients,
       images: images ?? this.images,
@@ -57,6 +63,7 @@ class Cookie {
       'name': name,
       'description': description,
       'price': price?.toMap(),
+      'isFeatured': isFeatured,
       'stock': stock,
       'ingredients': ingredients,
       'images': images,
@@ -69,8 +76,9 @@ class Cookie {
       name: map['name'] != null ? map['name'] as String : null,
       description: map['description'] != null ? map['description'] as String : null,
       price: map['price'] != null ? Price.fromMap(map['price'] as Map<String,dynamic>) : null,
+      isFeatured: map['isFeatured'] != null ? map['isFeatured'] as bool : null,
       stock: map['stock'] != null ? map['stock'] as int : null,
-      ingredients: map['ingredients'] != null ? List<dynamic>.from((map['ingredients'] as List<dynamic>) ): null,
+      ingredients: map['ingredients'] != null ? List<dynamic>.from((map['ingredients'] as List<dynamic>)) : null,
       images: map['images'] != null ? List<dynamic>.from((map['images'] as List<dynamic>)) : null,
     );
   }
@@ -81,7 +89,7 @@ class Cookie {
 
   @override
   String toString() {
-    return 'Cookie(id: $id, name: $name, description: $description, price: $price, stock: $stock, ingredients: $ingredients, images: $images)';
+    return 'Cookie(id: $id, name: $name, description: $description, price: $price, isFeatured: $isFeatured, stock: $stock, ingredients: $ingredients, images: $images)';
   }
 
   @override
@@ -94,6 +102,7 @@ class Cookie {
       other.name == name &&
       other.description == description &&
       other.price == price &&
+      other.isFeatured == isFeatured &&
       other.stock == stock &&
       listEquals(other.ingredients, ingredients) &&
       listEquals(other.images, images);
@@ -105,6 +114,7 @@ class Cookie {
       name.hashCode ^
       description.hashCode ^
       price.hashCode ^
+      isFeatured.hashCode ^
       stock.hashCode ^
       ingredients.hashCode ^
       images.hashCode;

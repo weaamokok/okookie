@@ -1,10 +1,17 @@
+import 'dart:convert';
+
 import 'package:auto_route/annotations.dart';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:okookie/domain/cookie.dart';
+import 'package:okookie/features/control_panel/control_panel_deps.dart';
+import 'package:okookie/features/control_panel/home_screen.dart';
+import 'package:okookie/features/home/home_deps.dart';
 import 'package:okookie/helper_provider.dart';
 import 'package:okookie/l10n/translations.g.dart';
 import 'package:okookie/resources/resources.dart';
+import 'package:skeletonizer/skeletonizer.dart';
 
 import '../o_widgets/o_title.dart';
 
@@ -36,7 +43,7 @@ class LandingScreen extends ConsumerWidget {
     final l10n = TranslationProvider.of(context).translations;
     return Scaffold(
         appBar: AppBar(
-          title:const OTitle(),
+          title: const OTitle(),
           centerTitle: true,
           actions: [
             Padding(
@@ -86,20 +93,43 @@ class LandingScreen extends ConsumerWidget {
 
                 height: coverImageHeight,
               ),
-              Row(
-                children: [
-                  Column(
-                    children: [
-                      Image.asset(
-                        Images.cookie,
-                        height: 200,
-                        fit: BoxFit.cover,
-                      ),
-                      const Text('Cookie')
-                    ],
-                  )
-                ],
-              )
+              FutureBuilder(
+                  future: ref.watch(HomeDeps.featuredCookies),
+                  builder: (
+                    context,
+                    snapshot,
+                  ) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return const Skeletonizer(
+                        child: HorizontalListing(
+                          cookies: [Cookie.mock()],
+                        ),
+                      );
+                    } else {
+                      final cookiesResponse = snapshot.data;
+                      if (cookiesResponse == null) {
+                        return const TextContainer(
+                          message: 'something went wrong',
+                        );
+                      }
+                      return cookiesResponse.fold(
+                        (l) => TextContainer(message: l),
+                        (cookies) {
+                          if (cookies.isEmpty) {
+                            return const TextContainer(
+                              message:
+                                  'No cookies yet, add some let the people have fun!',
+                            );
+                          } else {
+                            print('has data');
+                            return HorizontalListing(
+                              cookies: cookies,
+                            );
+                          }
+                        },
+                      );
+                    }
+                  })
             ],
           ),
         ),
@@ -112,5 +142,44 @@ class LandingScreen extends ConsumerWidget {
             ],
           ),
         ));
+  }
+}
+
+class HorizontalListing extends StatelessWidget {
+  const HorizontalListing({required this.cookies, super.key});
+  final List<Cookie> cookies;
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      height: 340,
+      width: double.infinity,
+      child: ListView.builder(
+        itemCount: cookies.length,
+        scrollDirection: Axis.horizontal,
+        itemBuilder: (context, index) {
+          print('-image${cookies[index].name}');
+          final images = cookies[index].images ?? [];
+
+          Container(
+            height: 200,
+            width: 200,
+            child: Column(
+              children: [
+                if (images.isNotEmpty)
+                  Image.memory(
+                    base64Decode(
+                      cookies[index].images?.first ?? '',
+                    ),
+                    errorBuilder: (context, error, stackTrace) => Text('error'),
+                  ),
+                Text('cookies[index].name ?? ' ''),
+                // Text(cookies[index].name ?? ''),
+                // Text(cookies[index].price?.value.toString() ?? '')
+              ],
+            ),
+          );
+        },
+      ),
+    );
   }
 }
